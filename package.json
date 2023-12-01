@@ -1,0 +1,37 @@
+{
+  "name": "emscripten-wechat-filesystem",
+  "version": "0.0.1",
+  "description": "为微信小程序环境适配Emscripten的文件系统",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "test": "env TS_NODE_PROJECT=./test/tsconfig.test.json mocha --require ts-node/register --require tsconfig-paths/register --extension ts --recursive './test/**/*.test.ts'",
+    "test:delay": "npm run test -- --delay",
+    "compile": "./node_modules/typescript/bin/tsc",
+    "build-npm": "wechat-devtools-cli build-npm --project ~/projects/emscripten-wechat-filesystem/mp",
+    "run-test": "wechat-devtools-cli auto --project ~/projects/emscripten-wechat-filesystem/mp --auto-port 9420"
+  },
+  "author": "KaiserZh",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/chai": "^4.3.4",
+    "@types/emscripten": "^1.39.6",
+    "@types/gulp": "^4.0.10",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.13.0",
+    "chai": "^4.3.7",
+    "lucia": "^0.6.5",
+    "miniprogram-api-typings": "^3.9.0",
+    "miniprogram-automator": "^0.12.0",
+    "mocha": "^10.2.0",
+    "rimraf": "^4.1.2",
+    "rollup": "^3.18.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.2",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {}
+}

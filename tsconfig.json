@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "inlineSources": true,
+    "pretty": true,
+    "target": "ES5",
+    "module": "CommonJS",
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "./types/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}
