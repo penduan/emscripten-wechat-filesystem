@@ -19,12 +19,13 @@ var Crypto = /** @class */ (function () {
     };
     return Crypto;
 }());
+var platform = wx.getSystemInfoSync().platform;
 var NodeProcessAdapter = /** @class */ (function () {
     function NodeProcessAdapter() {
         this.versions = {
             node: "14.9.0"
         };
-        this.platform = wx.getSystemInfoSync().platform;
+        this.platform = /dev/.test(platform) ? "windows" : platform;
         this.argv = [];
         this.release = {
             name: "node"
@@ -355,7 +356,7 @@ function getWechatErrorMessage(code) {
 }
 
 var WASM_FILE_PATH = "pages/wasm-test/lg2.wasm.br";
-var DEBUG = true;
+var DEBUG = false;
 
 // import fs from "fs";
 var StringFlags = {
@@ -618,9 +619,10 @@ var WeChatFS = /** @class */ (function () {
         return path;
     };
     WeChatFS.prototype.getStats = function (stat) {
+        var _a;
         return {
             mode: stat.mode,
-            size: stat.size,
+            size: (_a = stat.size) !== null && _a !== void 0 ? _a : 4096,
             isDirectory: stat.isDirectory,
             isFile: stat.isFile,
             isSymbolicLink: function () {
@@ -903,16 +905,28 @@ var WeChatFS = /** @class */ (function () {
     // @ts-ignore
     WeChatFS.prototype.readSync = function (fd, arrayBuffer, offset, length, position) {
         if (position === void 0) { position = null; }
+        var newOffset = 0;
+        if (typeof offset === "object") {
+            position = offset.position;
+        }
+        else {
+            newOffset = offset;
+        }
+        var newBuf = arrayBuffer;
+        if (!(arrayBuffer instanceof ArrayBuffer)) {
+            newBuf = arrayBuffer.buffer;
+            newOffset = arrayBuffer.byteOffset;
+            length = arrayBuffer.length;
+        }
         try {
-            return this._stream.readSync(fd, arrayBuffer, offset, length, position);
+            return this._stream.readSync(fd, newBuffer, newOffset, length, position);
         }
         catch (e) {
             throw e;
             // 当前emscripten NODEFS中暂未对read,write,llseek三种方法中的Error类型过滤,暂不能使用`FS.ErrnoError`对象封装错误.
             // 直接抛出原始错误并携带对应错误的code值.
-            var message = e.message;
             // @ts-ignore
-            e.code = getWechatErrorMessage(message);
+            e.code = getWechatErrorMessage(e.message);
             throw e;
             // @ts-ignore
             // throw new FS.ErrnoError(message);
@@ -921,15 +935,30 @@ var WeChatFS = /** @class */ (function () {
     // @ts-ignore
     WeChatFS.prototype.writeSync = function (fd, data, offset, length, position) {
         if (position === void 0) { position = null; }
+        if (position === void 0) {
+            position = null;
+        }
+        var newOffset = 0;
+        if (typeof offset === "object") {
+            position = offset.position;
+        }
+        else {
+            newOffset = offset;
+        }
+        var newData = data;
+        if (typeof data == "object" && !(data instanceof ArrayBuffer)) {
+            newData = data.buffer;
+            newOffset = data.byteOffset;
+            length = data.length;
+        }
         try {
-            return this._stream.writeSync(fd, data, offset, length, "utf8", position);
+            return this._stream.writeSync(fd, newData, newOffset, length, "utf8", position);
         }
         catch (e) {
             // 当前emscripten NODEFS中暂未对read,write,llseek三种方法中的Error类型过滤,暂不能使用`FS.ErrnoError`对象封装Error.
             // 直接抛出原始错误并携带对应错误的code值.
-            // let { message } = e as Error;
             // @ts-ignore
-            e.code = getWechatErrorMessage(message);
+            e.code = getWechatErrorMessage(e.message);
             throw e;
             // // @ts-ignore
             // throw new FS.ErrnoError(message);
@@ -969,3 +998,5 @@ function getWasmFilePath() {
     // @ts-ignore
     return Promise.resolve("WASM_FILE_PATH");
 }
+// 防止摇树把内容摇掉,在构建后需要正则删掉
+console.log('tree-shaking', getWeChatFS(), getPathAdapter(), getWasmFilePath());

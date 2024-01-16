@@ -26,3 +26,6 @@ function getWasmFilePath() {
     // @ts-ignore
     return Promise.resolve(process.env.WASM_FILE_PATH);
 }
+
+// 防止摇树把内容摇掉,在构建后需要正则删掉
+console.log('tree-shaking', getWeChatFS(), getPathAdapter(), getWasmFilePath());

@@ -307,7 +307,7 @@ export class WeChatFS implements Partial<NodeFSType> {
   getStats(stat: WechatMiniprogram.Stats| WechatMiniprogram.IAnyObject): StatsType {
     return {
       mode: stat.mode as any,
-      size: stat.size,
+      size: stat.size ?? 4096,
       isDirectory: stat.isDirectory,
       isFile: stat.isFile,
       isSymbolicLink: () => {
@@ -572,15 +572,27 @@ export class WeChatFS implements Partial<NodeFSType> {
 
   // @ts-ignore
   readSync(fd: number, arrayBuffer: any, offset: number, length: number, position = null) {
+    let newOffset = 0;
+    if (typeof offset === "object") {
+      position = offset.position;
+    } else {
+      newOffset = offset;
+    }
+
+    let newBuf = arrayBuffer;
+    if (!(arrayBuffer instanceof ArrayBuffer)) {
+      newBuf = arrayBuffer.buffer;
+      newOffset = arrayBuffer.byteOffset;
+      length = arrayBuffer.length;
+    }
     try {
-      return this._stream.readSync(fd, arrayBuffer, offset, length, position);
+      return this._stream.readSync(fd, newBuffer, newOffset, length, position);
     } catch(e) {
       throw e;
       // 当前emscripten NODEFS中暂未对read,write,llseek三种方法中的Error类型过滤,暂不能使用`FS.ErrnoError`对象封装错误.
       // 直接抛出原始错误并携带对应错误的code值.
-      let { message } = e as Error;
       // @ts-ignore
-      e.code = getWechatErrorMessage(message);
+      e.code = getWechatErrorMessage(e.message);
       throw e;
       // @ts-ignore
       // throw new FS.ErrnoError(message);
@@ -589,14 +601,28 @@ export class WeChatFS implements Partial<NodeFSType> {
 
   // @ts-ignore
   writeSync(fd: number, data: any, offset: number, length: number, position = null) {
+    if (position === void 0) {
+      position = null;
+    }
+    let newOffset = 0;
+    if (typeof offset === "object") {
+      position = offset.position;
+    } else {
+      newOffset = offset;
+    }
+    let newData = data;
+    if (typeof data == "object" && !(data instanceof ArrayBuffer)) {
+      newData = data.buffer;
+      newOffset = data.byteOffset;
+      length = data.length;
+    }
     try {
-      return this._stream.writeSync(fd, data, offset, length, "utf8", position);
+      return this._stream.writeSync(fd, newData, newOffset, length, "utf8", position);
     } catch(e) {
       // 当前emscripten NODEFS中暂未对read,write,llseek三种方法中的Error类型过滤,暂不能使用`FS.ErrnoError`对象封装Error.
       // 直接抛出原始错误并携带对应错误的code值.
-      // let { message } = e as Error;
       // @ts-ignore
-      e.code = getWechatErrorMessage(message);
+      e.code = getWechatErrorMessage(e.message);
       throw e;
       // // @ts-ignore
       // throw new FS.ErrnoError(message);

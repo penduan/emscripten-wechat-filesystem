@@ -18,13 +18,14 @@ export class Crypto {
   }
 }
 
+const platform = wx.getSystemInfoSync().platform;
 export class NodeProcessAdapter {
 
   versions = {
     node: "14.9.0"
   }
 
-  platform  = wx.getSystemInfoSync().platform;
+  platform = /dev/.test(platform) ? "windows" : platform;
   argv = [];
 
   release = {

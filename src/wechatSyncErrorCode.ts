@@ -1,4 +1,5 @@
 import { ERRNO_CODES } from "./errnoCodes"
+// TODO: 仅适配了部分,需要完善
 const ErrorCode = {
   "fail permission denied": ERRNO_CODES.EPERM,
   "no such file or directory": ERRNO_CODES.ENOENT,
