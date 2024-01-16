@@ -586,7 +586,7 @@ export class WeChatFS implements Partial<NodeFSType> {
       length = arrayBuffer.length;
     }
     try {
-      return this._stream.readSync(fd, newBuffer, newOffset, length, position);
+      return this._stream.readSync(fd, newBuf, newOffset, length, position);
     } catch(e) {
       throw e;
       // 当前emscripten NODEFS中暂未对read,write,llseek三种方法中的Error类型过滤,暂不能使用`FS.ErrnoError`对象封装错误.

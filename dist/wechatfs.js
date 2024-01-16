@@ -919,7 +919,7 @@ var WeChatFS = /** @class */ (function () {
             length = arrayBuffer.length;
         }
         try {
-            return this._stream.readSync(fd, newBuffer, newOffset, length, position);
+            return this._stream.readSync(fd, newBuf, newOffset, length, position);
         }
         catch (e) {
             throw e;
